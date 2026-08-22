@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Sock</title><desc>A striped sock</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#D9EEF2"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M91 55h52v89c0 15 10 24 28 32l26 12c12 6 14 21 3 29-8 6-20 8-32 4l-43-15c-34-12-52-31-52-57V55z" fill="#F5F7F7"/>
+    <path d="M91 83h52M91 106h52"/>
+    <path d="M148 174c13 6 29 12 44 18" stroke="#D3455B"/>
+  </g>
+</svg>
