@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Net</title><desc>A play net</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#E5F1D9"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M60 64v128M196 64v128M60 64h136M60 192h136"/>
+    <path d="M60 98h136M60 132h136M60 166h136M94 64v128M128 64v128M162 64v128" stroke="#2F7D4F" stroke-width="5"/>
+  </g>
+</svg>
