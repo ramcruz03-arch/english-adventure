@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Dad</title><desc>A dad and child</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#DDEBE1"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="106" cy="77" r="24" fill="#9A6A4F"/>
+    <circle cx="158" cy="108" r="18" fill="#B87955"/>
+    <path d="M68 197v-65c0-23 17-38 38-38s38 15 38 38v65" fill="#7FB6D9"/>
+    <path d="M137 197v-49c0-16 9-26 21-26s21 10 21 26v49" fill="#D3455B"/>
+    <path d="M83 161l-23 28M143 161l24 28"/>
+  </g>
+</svg>
