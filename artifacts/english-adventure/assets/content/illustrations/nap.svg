@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Nap</title><desc>A child resting for a nap</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#DCECF7"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M65 170h126"/>
+    <path d="M77 170v-38h102v38" fill="#F5F7F7"/>
+    <path d="M77 132h49c0-15-10-25-25-25-13 0-24 10-24 25z" fill="#F2A63B"/>
+    <path d="M145 94h24M153 82h12" stroke="#D3455B"/>
+  </g>
+</svg>
