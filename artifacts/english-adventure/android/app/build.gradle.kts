@@ -7,8 +7,10 @@ plugins {
 
 android {
     namespace = "com.example.english_adventure"
-    compileSdk = extra["flutter.compileSdkVersion"] as Int
-    ndkVersion = extra["flutter.ndkVersion"] as String
+    // Keep these values explicit so the Android project builds on clean CI
+    // runners as well as locally. The Flutter Gradle extension is still used
+    // below to locate the Dart project.
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,10 +26,10 @@ android {
         applicationId = "com.example.english_adventure"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = extra["flutter.minSdkVersion"] as Int
-        targetSdk = extra["flutter.targetSdkVersion"] as Int
-        versionCode = extra["flutter.versionCode"] as Int
-        versionName = extra["flutter.versionName"] as String
+        minSdk = 21
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1.0"
     }
 
     buildTypes {
