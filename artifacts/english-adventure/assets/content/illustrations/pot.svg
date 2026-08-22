@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Pot</title><desc>A cooking pot</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#DDEBE1"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M77 100h102v68c0 19-23 31-51 31s-51-12-51-31z" fill="#B7C5C4"/>
+    <path d="M64 105h128M91 86c7-13 18-20 37-20s30 7 37 20"/>
+    <path d="M65 126H51M205 126h-14"/>
+    <path d="M104 57c-9-13 4-20 0-31M128 57c-9-13 4-20 0-31M152 57c-9-13 4-20 0-31" stroke="#7FB6D9"/>
+  </g>
+</svg>
