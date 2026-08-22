@@ -1,0 +1,55 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- NO permissions are declared. Not INTERNET, not VIBRATE, not storage.
+         Flutter's HapticFeedback uses performHapticFeedback(), which needs no
+         permission. A children's app that requests nothing is both safer and a
+         much easier Play review.
+
+         Flutter auto-adds INTERNET to the DEBUG and PROFILE manifests only
+         (android/app/src/debug/AndroidManifest.xml) so hot reload works. That
+         is correct and does not affect the release build. Verify after building:
+             aapt dump permissions build/app/outputs/bundle/release/app-release.aab
+         The output should list no permissions at all. -->
+
+    <!-- Required on Android 11+ (API 30) or flutter_tts cannot see the
+         device text-to-speech engine and every voice prompt silently fails. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="English Adventure"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:usesCleartextTraffic="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+</manifest>
