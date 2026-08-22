@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Book</title><desc>An open book</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#DCECF7"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 83c26-14 50-10 74 5v104c-24-15-48-19-74-5z" fill="#FFF8E7"/>
+    <path d="M202 83c-26-14-50-10-74 5v104c24-15 48-19 74-5z" fill="#FFF8E7"/>
+    <path d="M128 88v104M76 111c17-5 31-2 43 5M180 111c-17-5-31-2-43 5"/>
+  </g>
+</svg>
