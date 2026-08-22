@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Mat</title><desc>A woven mat</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#FDE7D8"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="54" y="82" width="148" height="98" rx="10" fill="#D9A85C"/>
+    <path d="M72 82v98M91 82v98M110 82v98M129 82v98M148 82v98M167 82v98M186 82v98" stroke="#9C6A38" stroke-width="5"/>
+    <path d="M54 104h148M54 126h148M54 148h148M54 170h148" stroke="#F2C878" stroke-width="5"/>
+  </g>
+</svg>
