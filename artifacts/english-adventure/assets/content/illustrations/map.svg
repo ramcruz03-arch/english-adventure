@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Map</title><desc>A map with a route</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#FCE7B2"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 72l49-16 50 16 49-16v128l-49 16-50-16-49 16z" fill="#FFF8E7"/>
+    <path d="M103 56v128M153 72v128"/>
+    <path d="M80 151c19-42 38 4 55-27 12-21 22-28 40-10" stroke="#2F7D4F"/>
+    <path d="M174 106l6 8-9 4" stroke="#D3455B"/>
+  </g>
+</svg>
