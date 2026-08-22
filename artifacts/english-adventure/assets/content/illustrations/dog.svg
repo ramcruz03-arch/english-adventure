@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Dog</title><desc>A friendly dog</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#FDE7D8"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 102c-3-26 5-43 24-49l23 22 23-22c19 6 27 23 24 49 18 8 25 23 22 49-3 29-21 48-69 48s-66-19-69-48c-3-26 4-41 22-49z" fill="#C98A48"/>
+    <path d="M104 123h1M151 123h1M112 143c11 8 21 8 32 0" stroke="#33241A"/>
+    <path d="M128 142v9"/>
+  </g>
+</svg>
