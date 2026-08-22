@@ -7,8 +7,8 @@ plugins {
 
 android {
     namespace = "com.example.english_adventure"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = extra["flutter.compileSdkVersion"] as Int
+    ndkVersion = extra["flutter.ndkVersion"] as String
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,10 +24,10 @@ android {
         applicationId = "com.example.english_adventure"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdk = extra["flutter.minSdkVersion"] as Int
+        targetSdk = extra["flutter.targetSdkVersion"] as Int
+        versionCode = extra["flutter.versionCode"] as Int
+        versionName = extra["flutter.versionName"] as String
     }
 
     buildTypes {
