@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Pin</title><desc>A push pin</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#EDE0CB"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M101 69h54l-7 55h-40z" fill="#D3455B"/>
+    <path d="M91 124h74l-12 22h-50z" fill="#F2A63B"/>
+    <path d="M128 146v57"/>
+  </g>
+</svg>
