@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Spinning top</title><desc>A toy spinning top</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#FCE7B2"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 52v28"/>
+    <path d="M128 80c-35 0-57 17-57 41 0 28 27 47 57 72 30-25 57-44 57-72 0-24-22-41-57-41z" fill="#D3455B"/>
+    <path d="M80 116h96M103 87c-8 22-5 47 5 69M153 87c8 22 5 47-5 69" stroke="#F2A63B"/>
+  </g>
+</svg>
