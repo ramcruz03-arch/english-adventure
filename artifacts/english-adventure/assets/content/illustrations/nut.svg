@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title>Nut</title><desc>A peanut</desc>
+  <rect width="256" height="256" rx="48" fill="#F7EFE2"/>
+  <circle cx="128" cy="128" r="92" fill="#FCE7B2"/>
+  <g fill="none" stroke="#33241A" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M128 59c-22-14-45 3-39 29 3 13 13 19 9 35-5 18 6 43 30 43s35-25 30-43c-4-16 6-22 9-35 6-26-17-43-39-29z" fill="#C98A48"/>
+    <path d="M97 103c18 12 44 12 62 0M98 140c18 12 44 12 60 0" stroke="#9C6A38"/>
+  </g>
+</svg>
