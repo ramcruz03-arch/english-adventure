@@ -3,7 +3,6 @@ name: build
 on:
   push:
     branches: [main]
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -11,51 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare Flutter project
-        shell: bash
+      - name: Find Flutter project
         run: |
-          set -e
-
-          mkdir -p artifacts/english-adventure
-          mkdir -p /tmp/english-adventure
-
-          ZIP=$(find . -maxdepth 1 -type f -name "*.zip" | sort | tail -n 1)
-
-          if [ -z "$ZIP" ]; then
-            echo "ERROR: No Flutter project ZIP found."
-            exit 1
-          fi
-
-          echo "Using ZIP: $ZIP"
-
-          unzip -q "$ZIP" -d /tmp/english-adventure
-
-          APP_DIR=$(find /tmp/english-adventure \
-            -type f \
-            -name "pubspec.yaml" \
-            -print -quit | xargs dirname)
-
-          if [ -z "$APP_DIR" ]; then
-            echo "ERROR: pubspec.yaml not found."
-            exit 1
-          fi
-
-          echo "Flutter project found at: $APP_DIR"
-
-          cp -a "$APP_DIR"/. artifacts/english-adventure/
-
-          test -f artifacts/english-adventure/pubspec.yaml
-
-          echo "Flutter project prepared successfully."
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
+          echo "Repository contents:"
+          find . -maxdepth 3 -type f -name pubspec.yaml -print
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -63,34 +24,43 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Detect project directory
+        id: project
+        run: |
+          PROJECT_DIR=$(dirname "$(find . -type f -name pubspec.yaml | head -n 1)")
+          if [ -z "$PROJECT_DIR" ] || [ "$PROJECT_DIR" = "." ]; then
+            echo "PROJECT_DIR=." >> "$GITHUB_OUTPUT"
+          else
+            echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Flutter version
-        working-directory: artifacts/english-adventure
         run: flutter --version
 
       - name: Resolve dependencies
-        working-directory: artifacts/english-adventure
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter pub get
 
       - name: Analyze
-        working-directory: artifacts/english-adventure
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter analyze --no-fatal-infos
 
       - name: Test
-        working-directory: artifacts/english-adventure
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter test
 
       - name: Validate content pack
-        working-directory: artifacts/english-adventure
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: dart run tools/validate_content.dart
 
       - name: Build APK
-        working-directory: artifacts/english-adventure
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: english-adventure-apk
-          path: artifacts/english-adventure/build/app/outputs/flutter-apk/app-release.apk
+          path: ${{ steps.project.outputs.PROJECT_DIR }}/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
