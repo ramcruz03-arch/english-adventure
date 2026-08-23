@@ -1,7 +1,0 @@
-# Copy to android/key.properties and fill in. NEVER commit the real file or
-# the .jks - both are in .gitignore. If you lose the keystore you can no
-# longer update the app under the same listing, so keep two offline copies.
-storePassword=CHANGE_ME
-keyPassword=CHANGE_ME
-keyAlias=upload
-storeFile=/absolute/path/to/english-adventure-upload.jks
