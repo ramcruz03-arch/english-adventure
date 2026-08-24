@@ -2,7 +2,8 @@ name: build
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,59 +11,93 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Download repository
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Find Flutter project
+      # 2. Find and extract the Flutter project ZIP
+      - name: Extract Flutter project
+        id: project
+        shell: bash
         run: |
-          echo "Searching for Flutter project..."
-          find . -type f -name pubspec.yaml -print
+          set -e
 
+          echo "Searching for project ZIP..."
+
+          ZIP_FILE=$(find . -maxdepth 1 -type f -name '*.zip' | head -n 1)
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ERROR: No ZIP file found in repository root."
+            exit 1
+          fi
+
+          echo "Using ZIP file:"
+          echo "$ZIP_FILE"
+
+          rm -rf extracted-project
+          mkdir -p extracted-project
+
+          unzip -q "$ZIP_FILE" -d extracted-project
+
+          echo ""
+          echo "Searching for pubspec.yaml..."
+
+          PUBSPEC=$(find extracted-project -type f -name "pubspec.yaml" -print -quit)
+
+          if [ -z "$PUBSPEC" ]; then
+            echo "ERROR: pubspec.yaml was not found inside the ZIP."
+            echo ""
+            echo "Extracted files:"
+            find extracted-project -maxdepth 5 -type f | head -200
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$PUBSPEC")
+
+          echo ""
+          echo "Flutter project found:"
+          echo "$PROJECT_DIR"
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+
+      # 3. Install Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Detect project directory
-        id: project
-        run: |
-          PUBSPEC=$(find . -type f -name pubspec.yaml -print -quit)
-
-          if [ -z "$PUBSPEC" ]; then
-            echo "ERROR: pubspec.yaml not found."
-            exit 1
-          fi
-
-          PROJECT_DIR=$(dirname "$PUBSPEC")
-
-          echo "Flutter project found at: $PROJECT_DIR"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
-
+      # 4. Check Flutter
       - name: Flutter version
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter --version
 
+      # 5. Install dependencies
       - name: Resolve dependencies
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter pub get
 
+      # 6. Analyze Dart / Flutter code
       - name: Analyze
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter analyze --no-fatal-infos
 
+      # 7. Run tests
       - name: Test
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter test
 
+      # 8. Validate English Adventure content
       - name: Validate content pack
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: dart run tools/validate_content.dart
 
+      # 9. Build release APK
       - name: Build APK
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter build apk --release
 
+      # 10. Upload APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
