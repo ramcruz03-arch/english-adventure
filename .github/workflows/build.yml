@@ -22,9 +22,7 @@ jobs:
         shell: bash
         run: |
           set -e
-
-          echo "Files in repository:"
-          find . -maxdepth 2 -type f | head -100
+          echo "Searching repository for Flutter project ZIP..."
 
           ZIP_FILE=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
 
@@ -35,25 +33,21 @@ jobs:
 
           echo "Found ZIP: $ZIP_FILE"
 
+          rm -rf extracted
           mkdir -p extracted
           unzip -q "$ZIP_FILE" -d extracted
-
-          echo "Searching for pubspec.yaml..."
 
           PUBSPEC=$(find extracted -type f -name "pubspec.yaml" | head -n 1)
 
           if [ -z "$PUBSPEC" ]; then
             echo "ERROR: pubspec.yaml was not found inside the ZIP."
-            echo "ZIP contents:"
             find extracted -maxdepth 4 -type f | head -200
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$PUBSPEC")
 
-          echo "Flutter project found:"
-          echo "$PROJECT_DIR"
-
+          echo "Flutter project found: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Setup Flutter
@@ -70,13 +64,13 @@ jobs:
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter pub get
 
-      - - name: Analyze
-  working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
-  shell: bash
-  run: |
-    echo "Running Flutter analysis..."
-    flutter analyze --no-fatal-infos || true
-    echo "Analysis completed. Continuing to build."
+      - name: Analyze
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        run: |
+          echo "Running Flutter analysis..."
+          flutter analyze --no-fatal-infos || true
+          echo "Analysis completed. Continuing to build."
 
       - name: Test
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
