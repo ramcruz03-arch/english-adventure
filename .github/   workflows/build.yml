@@ -1,0 +1,117 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      project_path:
+        description: 'Path to the Flutter project root (relative to repository root)'
+        required: false
+        default: '.'
+      flutter_channel:
+        description: 'Flutter channel (stable, beta, dev)'
+        required: false
+        default: 'stable'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # If you already know the exact path, you can skip the 'find' and just use the input.
+      - name: Locate Flutter project
+        id: project
+        shell: bash
+        run: |
+          set -e
+          PROJECT_INPUT="${{ github.event.inputs.project_path || '.' }}"
+
+          # If input points to a directory with pubspec.yaml, use it directly
+          if [ -f "$PROJECT_INPUT/pubspec.yaml" ]; then
+            PROJECT_DIR="$PROJECT_INPUT"
+          else
+            # Fallback: find the first pubspec.yaml (ignoring .git)
+            PUBSPEC="$(find "$PROJECT_INPUT" -type f -name pubspec.yaml -not -path './.git/*' | head -n 1)"
+            if [ -z "$PUBSPEC" ]; then
+              echo "ERROR: pubspec.yaml not found in $PROJECT_INPUT"
+              exit 1
+            fi
+            PROJECT_DIR="$(dirname "$PUBSPEC")"
+          fi
+
+          # Normalise to '.' if it's the root
+          [ "$PROJECT_DIR" = "." ] && PROJECT_DIR="."
+
+          echo "PROJECT_DIR=$PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+
+          # Extract project name from pubspec.yaml for dynamic artifact naming
+          PROJECT_NAME="$(grep '^name:' "$PROJECT_DIR/pubspec.yaml" | head -1 | sed 's/name: //' | tr -d ' ')"
+          echo "PROJECT_NAME=${PROJECT_NAME:-app}"
+          echo "PROJECT_NAME=${PROJECT_NAME:-app}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ github.event.inputs.flutter_channel || 'stable' }}
+          cache: true
+
+      - name: Flutter version
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        run: flutter --version
+
+      - name: Get dependencies
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        run: flutter pub get
+
+      - name: Analyze
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        run: |
+          echo "Running Dart/Flutter analysis (errors will fail the build)..."
+          flutter analyze --no-fatal-infos
+          echo "Analysis passed."
+
+      - name: Test
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        run: |
+          if [ -d "test" ] && find test -type f -name '*_test.dart' | grep -q .; then
+            flutter test --coverage
+          else
+            echo "No tests found – skipping."
+          fi
+
+      - name: Validate content pack
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        run: |
+          if [ -f "tools/validate_content.dart" ]; then
+            dart run tools/validate_content.dart
+          else
+            echo "No content validator found – skipping."
+          fi
+
+      - name: Build release APK
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        run: flutter build apk --release
+
+      # ── Optional: also build an App Bundle for Play Store ──
+      # - name: Build release App Bundle
+      #   working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+      #   run: flutter build appbundle --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.project.outputs.PROJECT_NAME }}-apk
+          path: ${{ steps.project.outputs.PROJECT_DIR }}/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
