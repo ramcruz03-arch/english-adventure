@@ -15,8 +15,8 @@ jobs:
 
       - name: Find Flutter project
         run: |
-          echo "Repository contents:"
-          find . -maxdepth 3 -type f -name pubspec.yaml -print
+          echo "Searching for Flutter project..."
+          find . -type f -name pubspec.yaml -print
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -27,14 +27,20 @@ jobs:
       - name: Detect project directory
         id: project
         run: |
-          PROJECT_DIR=$(dirname "$(find . -type f -name pubspec.yaml | head -n 1)")
-          if [ -z "$PROJECT_DIR" ] || [ "$PROJECT_DIR" = "." ]; then
-            echo "PROJECT_DIR=." >> "$GITHUB_OUTPUT"
-          else
-            echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+          PUBSPEC=$(find . -type f -name pubspec.yaml -print -quit)
+
+          if [ -z "$PUBSPEC" ]; then
+            echo "ERROR: pubspec.yaml not found."
+            exit 1
           fi
 
+          PROJECT_DIR=$(dirname "$PUBSPEC")
+
+          echo "Flutter project found at: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+
       - name: Flutter version
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter --version
 
       - name: Resolve dependencies
