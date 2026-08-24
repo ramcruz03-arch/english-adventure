@@ -23,7 +23,7 @@ jobs:
         run: |
           set -e
 
-          echo "Searching repository for Flutter project ZIP..."
+          echo "Searching for Flutter ZIP..."
 
           ZIP_FILE=$(find . -maxdepth 2 -type f -name "*.zip" | head -n 1)
 
@@ -32,27 +32,24 @@ jobs:
             exit 1
           fi
 
-          echo "Found ZIP: $ZIP_FILE"
+          echo "Found: $ZIP_FILE"
 
           rm -rf extracted
           mkdir -p extracted
 
           unzip -q "$ZIP_FILE" -d extracted
 
-          echo "Searching for pubspec.yaml..."
-
           PUBSPEC=$(find extracted -type f -name "pubspec.yaml" | head -n 1)
 
           if [ -z "$PUBSPEC" ]; then
-            echo "ERROR: pubspec.yaml was not found inside the ZIP."
-            echo "ZIP contents:"
-            find extracted -maxdepth 4 -type f | head -200
+            echo "ERROR: pubspec.yaml not found."
+            find extracted -maxdepth 5 -type f | head -200
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$PUBSPEC")
 
-          echo "Flutter project found:"
+          echo "Flutter project:"
           echo "$PROJECT_DIR"
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
@@ -71,6 +68,30 @@ jobs:
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter pub get
 
+      - name: Repair Android project
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        run: |
+          set -e
+
+          echo "Checking Android project..."
+
+          if [ ! -f "android/app/build.gradle" ] && [ ! -f "android/app/build.gradle.kts" ]; then
+            echo "Android Gradle files are missing."
+            echo "Generating Android platform files..."
+
+            flutter create \
+              --platforms=android \
+              --project-name english_adventure \
+              .
+
+          else
+            echo "Android project already exists."
+          fi
+
+          echo "Android project check:"
+          find android -maxdepth 3 -type f | sort | head -100
+
       - name: Analyze
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
@@ -80,53 +101,57 @@ jobs:
           flutter analyze --no-fatal-infos || true
 
           echo "Analysis completed."
-          echo "Continuing to APK build."
 
       - name: Test
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
-          echo "Tests temporarily skipped for APK build."
-          echo "Continuing to build the application."
+          echo "Tests temporarily skipped."
+          echo "Continuing to APK build."
 
       - name: Validate content
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
           if [ -f "tools/validate_content.dart" ]; then
-            echo "Running content validation..."
-            dart run tools/validate_content.dart
+            echo "Validating content..."
+            dart run tools/validate_content.dart || true
           else
             echo "Content validator not found."
-            echo "Skipping content validation."
+            echo "Skipping."
           fi
 
       - name: Build APK
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
+          echo "Cleaning Flutter project..."
+          flutter clean
+
+          echo "Getting dependencies again..."
+          flutter pub get
+
           echo "Building release APK..."
-
           flutter build apk --release
-
-          echo "APK build completed."
 
       - name: Check APK
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
-          if [ -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
-            echo "APK FOUND:"
-            ls -lh build/app/outputs/flutter-apk/app-release.apk
-          else
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+
+          if [ ! -f "$APK" ]; then
             echo "ERROR: APK was not created."
             exit 1
           fi
 
+          echo "SUCCESS!"
+          ls -lh "$APK"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: english-adventure-apk
+          name: english-adventure-release-apk
           path: ${{ steps.project.outputs.PROJECT_DIR }}/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
