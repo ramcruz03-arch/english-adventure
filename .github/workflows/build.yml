@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # Google Play identity. Cannot be changed after your first release.
+  APP_ID: com.ramcruz.englishadventure
+  APP_LABEL: English Adventure
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -68,85 +73,116 @@ jobs:
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         run: flutter pub get
 
-      - name: Repair Android project
+      - name: Generate Android platform files
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
           set -e
 
-          echo "Checking Android project..."
-
           if [ ! -f "android/app/build.gradle" ] && [ ! -f "android/app/build.gradle.kts" ]; then
-            echo "Android Gradle files are missing."
             echo "Generating Android platform files..."
-
             flutter create \
               --platforms=android \
               --project-name english_adventure \
               .
-
           else
             echo "Android project already exists."
           fi
 
-          echo "Android project check:"
-          find android -maxdepth 3 -type f | sort | head -100
+      - name: Configure package name, label and signing
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -e
+
+          SIGN_FLAG=""
+
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "Keystore secret found - configuring release signing."
+
+            echo "$KEYSTORE_BASE64" | base64 -d > "$PWD/android/upload-keystore.jks"
+
+            {
+              echo "storePassword=$KEYSTORE_PASSWORD"
+              echo "keyPassword=$KEY_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "storeFile=$PWD/android/upload-keystore.jks"
+            } > "$PWD/android/key.properties"
+
+            SIGN_FLAG="--sign"
+          else
+            echo "No keystore secret - the build will use the debug key."
+            echo "Fine for sideloading, rejected by Google Play."
+          fi
+
+          python3 tools/configure_android.py \
+            --app-id "$APP_ID" \
+            --app-label "$APP_LABEL" \
+            $SIGN_FLAG
 
       - name: Analyze
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
-          echo "Running Flutter analysis..."
-
-          flutter analyze --no-fatal-infos || true
-
-          echo "Analysis completed."
+          # No "|| true" here on purpose: a Dart error should stop the run in
+          # eight seconds with a readable message, not surface as a Gradle
+          # failure two minutes later.
+          flutter analyze --no-fatal-infos
 
       - name: Test
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
-        run: |
-          echo "Tests temporarily skipped."
-          echo "Continuing to APK build."
+        run: flutter test
 
       - name: Validate content
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
           if [ -f "tools/validate_content.dart" ]; then
-            echo "Validating content..."
-            dart run tools/validate_content.dart || true
+            dart run tools/validate_content.dart
           else
-            echo "Content validator not found."
-            echo "Skipping."
+            echo "Content validator not found. Skipping."
+          fi
+
+          # Every word of every passage must be decodable with code taught
+          # at or before its island. This is the promise the whole course
+          # rests on, so a single undecodable word fails the build.
+          if [ -f "tools/phonics.py" ]; then
+            python3 tools/phonics.py assets/content/levels.json
+          else
+            echo "Decodability checker not found. Skipping."
           fi
 
       - name: Build APK
         working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
         shell: bash
         run: |
-          echo "Cleaning Flutter project..."
-          flutter clean
-
-          echo "Getting dependencies again..."
-          flutter pub get
-
-          echo "Building release APK..."
           flutter build apk --release
 
-      - name: Check APK
-        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
-        shell: bash
-        run: |
           APK="build/app/outputs/flutter-apk/app-release.apk"
-
           if [ ! -f "$APK" ]; then
             echo "ERROR: APK was not created."
             exit 1
           fi
-
-          echo "SUCCESS!"
           ls -lh "$APK"
+
+      - name: Build App Bundle
+        working-directory: ${{ steps.project.outputs.PROJECT_DIR }}
+        shell: bash
+        run: |
+          flutter build appbundle --release
+
+          AAB="build/app/outputs/bundle/release/app-release.aab"
+          if [ -f "$AAB" ]; then
+            ls -lh "$AAB"
+          else
+            echo "WARNING: App Bundle was not created."
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -154,4 +190,12 @@ jobs:
           name: english-adventure-release-apk
           path: ${{ steps.project.outputs.PROJECT_DIR }}/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: english-adventure-release-aab
+          path: ${{ steps.project.outputs.PROJECT_DIR }}/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: warn
           retention-days: 14
